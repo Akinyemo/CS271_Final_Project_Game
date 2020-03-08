@@ -1,11 +1,11 @@
-TITLE Tic Tack Toe
+TITLE Tic Tac Toe
 
-; Link to github code: https://github.com/itzzhammy/Snake_Xenia_Game_Assembely_Language
-; Snake game created in MASM x86. 
+; Link to github code: 
+; Tic-Tac-Toe created in MASM x86. 
 
 
 ; Registers used in the program: 	
-	;1)	eax, esi, edx, ebx, ecx, 
+	;1)	eax, esi, edx, ecx, 
 	
 ; Classification of registers:
 	;1) EDX: Used to display text instructions
@@ -19,9 +19,10 @@ TITLE Tic Tack Toe
 INCLUDE Irvine32.inc
 
 .const
-	max			DWORD		3		;This is for the loop (mov ECX, max) in restBoard PROC				
-
-
+	max			DWORD		9		;This is for the loop (mov ECX, max) in restBoard PROC				
+	empty		BYTE        " ",0
+	letterO     BYTE        "O",0
+	letterX     BYTE        "X",0
 
 MAX_SIZE = 9	;Size of array that keeps track of the O/X/Empty spaces on the board
 
@@ -58,23 +59,23 @@ resetBoard PROC						;This procedure is responsible of making all values on the 
 resetBoard ENDP						;End of resetBoard procedure
 
 displayBoard PROC					;This procedure will display the current values on the tictactoe board
-	mov ECX, max					;Make ECX = 3 which how many times the display loop will run
+	mov ECX, 3						;Make ECX = 3 which how many times the display loop will run
 	mov ESI, 0						;Start ESI = 0 which is the starting index of the array
 	display:						;Loop that will print out a row (3 values from the board)
 		mov	EAX, board[ESI]			;Make EAX = board[ESI] = 0/1/2
-		call WriteDec				;Print EAX value from board
+		call convert				;Call covert to print out / /O/X/
 		mov EDX, OFFSET horizontal	;Make EDX = '|'
 		call WriteString			;Print horizontal bar of the tictactoe board
 
 		add ESI, 4					;Make ESI increase to the next index of the array
 		mov EAX, board[ESI]			;Make EAX = board[ESI] = 0/1/2
-		call WriteDec				;Print EAX value from board
+		call convert				;Call covert to print out / /O/X/
 		mov EDX, OFFSET horizontal  ;Make EDX = '|'
 		call WriteString			;Print horizontal bar of the tictactoe board
 
 		add ESI, 4					;Make ESI increase to the next index of the array
 		mov EAX, board[ESI]			;Make EAX = board[ESI] = 0/1/2
-		call WriteDec				;Print EAX value from board
+		call convert				;Call covert to print out / /O/X/
 
 		call crlf					;Start on the next command line		
 		mov EDX, OFFSET vertical	;Make EDX = '-----'
@@ -85,7 +86,34 @@ displayBoard PROC					;This procedure will display the current values on the tic
 
 		loop display				;End of loop
 	ret								;Return to main
+
 displayBoard ENDP
+
+convert PROC						;This procedure will use compare statements to decide what needs printed on the board. If EAX = 0, then ' ' . If EAX = 1, then 'O'. If EAX = 2, then 'X'  
+	cmp EAX, 0						;Comparing EAX and 0
+	je printEmpty					;If EAX = 0, then jump to printEmpty
+	cmp EAX, 1						;Comparing EAX and 1
+	je printO						;If EAX = 1, then jump to printO
+	cmp EAX, 2						;Comparing EAX and 2
+	je printX						;If EAX = 2, then jump to printX
+	ret								;Return to displayBoard
+
+	printEmpty:						;Prints ' '
+		mov EDX, OFFSET empty		;Make EDX = ' '
+		call WriteString			;Print EDX
+		ret							;Return to displayBoard
+
+	printO:							;Prints '0'
+		mov EDX, OFFSET letterO		;Make EDX = 'O'
+		call WriteString			;Print EDX
+		ret							;Return to displayBoard
+
+	printX:							;Prints 'X'
+		mov EDX, OFFSET letterX		;Make EDX = 'X'
+		call WriteString			;Print EDX
+		ret							;Return to displayBoard
+
+convert ENDP						;End of covert procedure
 
 
 END main
