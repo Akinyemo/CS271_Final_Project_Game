@@ -47,44 +47,44 @@ main PROC
 		exit
 main ENDP
 
-resetBoard PROC					;This procedure is responsible of making all values on the board empty(0)
-	mov ECX, max				;Will make ECX = 9 which how many times loop needs to reiterate to reset the board
-	mov ESI, 0
-	insertZero:					;Loop that will make board[ESI] = 0
-		mov board[ESI], 0		;Will make board [ESI] = 0
-		add ESI, 4				;Will make ESI increase to the next index of the array
-		loop insertZero			;End of loop
-	ret		
-resetBoard ENDP
+resetBoard PROC						;This procedure is responsible of making all values on the board empty(0)
+	mov ECX, max					;Make ECX = 9 which how many times loop needs to reiterate to reset the board
+	mov ESI, 0						;Start ESI = 0 which is the starting index of the array
+	insertZero:						;Loop that makes board[ESI] = 0
+		mov board[ESI], 0			;Make board [ESI] = 0
+		add ESI, 4					;Make ESI increase to the next index of the array
+		loop insertZero				;End of loop
+	ret								;Returns back to the main procedure
+resetBoard ENDP						;End of resetBoard procedure
 
-displayBoard PROC
-	mov ECX, max
-	mov ESI, 0
-	display:
-		mov	EAX, board[ESI]
-		call WriteDec
-		mov EDX, OFFSET horizontal
-		call WriteString
+displayBoard PROC					;This procedure will display the current values on the tictactoe board
+	mov ECX, max					;Make ECX = 3 which how many times the display loop will run
+	mov ESI, 0						;Start ESI = 0 which is the starting index of the array
+	display:						;Loop that will print out a row (3 values from the board)
+		mov	EAX, board[ESI]			;Make EAX = board[ESI] = 0/1/2
+		call WriteDec				;Print EAX value from board
+		mov EDX, OFFSET horizontal	;Make EDX = '|'
+		call WriteString			;Print horizontal bar of the tictactoe board
 
-		add ESI, 4
-		mov EAX, board[ESI]
-		call WriteDec
-		mov EDX, OFFSET horizontal
-		call WriteString
+		add ESI, 4					;Make ESI increase to the next index of the array
+		mov EAX, board[ESI]			;Make EAX = board[ESI] = 0/1/2
+		call WriteDec				;Print EAX value from board
+		mov EDX, OFFSET horizontal  ;Make EDX = '|'
+		call WriteString			;Print horizontal bar of the tictactoe board
 
-		add ESI, 4
-		mov EAX, board[ESI]
-		call WriteDec
+		add ESI, 4					;Make ESI increase to the next index of the array
+		mov EAX, board[ESI]			;Make EAX = board[ESI] = 0/1/2
+		call WriteDec				;Print EAX value from board
 
-		call crlf
-		mov EDX, OFFSET vertical
-		call WriteString
-		call crlf
+		call crlf					;Start on the next command line		
+		mov EDX, OFFSET vertical	;Make EDX = '-----'
+		call WriteString			;Print vertical bar of the tictactoe board
+		call crlf					;Start on the next command line
 
-		add ESI, 4
+		add ESI, 4					;Make ESI increase to the next index of the array
 
-		loop display
-	ret
+		loop display				;End of loop
+	ret								;Return to main
 displayBoard ENDP
 
 
