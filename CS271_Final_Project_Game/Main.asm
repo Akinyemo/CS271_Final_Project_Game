@@ -44,7 +44,7 @@ MAX_SIZE = 9	;Size of array that keeps track of the O/X/Empty spaces on the boar
 	vertical    BYTE        "|",0							;Vertical bar that is part of the board
 	horizontal  BYTE        "-----"							;Horizontal bar that is part of the board
 	playerChoice DWORD      ?       
-
+	outro       BYTE        "Games is over", 0
 .code
 main PROC
 	introduction:
@@ -70,6 +70,8 @@ main PROC
 
 	checkBoard:
 		call fullBoard
+		cmp EBX, 1
+		je ending
 	
 	userInteraction:
 		call ReadInt
@@ -81,8 +83,9 @@ main PROC
 		call addToBoard
 		call displayBoard
 		jmp checkBoard
-
-
+	ending:
+		mov EDX, OFFSET outro
+		call WriteString
 		exit
 main ENDP
 
@@ -191,9 +194,12 @@ fullBoard PROC
 	mov ESI, 0
 	mov ECX, max
 	
-	checkBoard:
-		cmp board[ESI], EBX			;Since 0 represents an empty spot on the board
-		loop checkBoard
+	checkBoard:						;Will go through each index of board[] to see if a spot is empty.
+		cmp board[ESI], EBX			;Since 0 represents an empty spot on the board, it will be used to compare if board[ESI] == 0
+		je boardNotFull
+		add ESI, 4
+		loop checkBoard	
+		jmp boardIsFull
 
 
 	boardIsFull:
