@@ -15,25 +15,27 @@ TITLE Tic Tac Toe
 
 ; Procedures:
 	;1)	Main Procedure
+	;2) ResetBoard Procedure
+	;3) DisplayBoard Procedure
+	;4) Convert Procedure
 
-	
 ; Problems with game:
 
 INCLUDE Irvine32.inc
 
 .const
 	max			DWORD		9		;This is for the loop (mov ECX, max) in restBoard PROC				
-	empty		BYTE        " ",0
-	letterO     BYTE        "O",0
-	letterX     BYTE        "X",0
+	empty		BYTE        " ",0	;Represents an empty spot on the board
+	letterO     BYTE        "O",0	;Represents a "O" spot on the board
+	letterX     BYTE        "X",0	;Represents a "X" spot on the board
 
 MAX_SIZE = 9	;Size of array that keeps track of the O/X/Empty spaces on the board
 
 .data
-	intro		BYTE		"WELCOME TO TIC TAC TOE",0		;intro text for the game
+	intro		BYTE		"WELCOME TO TIC TAC TOE",0		;Intro text for the game
 	board       DWORD       MAX_SIZE	DUP(?)				;This will be the array that will keep track of which spots have O/X/Empty || Empty = 0 || O = 1 || X = 2
-	horizontal  BYTE        "|",0
-	vertical    BYTE        "-----"
+	vertical    BYTE        "|",0							;Vertical bar that is part of the board
+	horizontal  BYTE        "-----"							;Horizontal bar that is part of the board
 
 
 .code
@@ -67,13 +69,13 @@ displayBoard PROC					;This procedure will display the current values on the tic
 	display:						;Loop that will print out a row (3 values from the board)
 		mov	EAX, board[ESI]			;Make EAX = board[ESI] = 0/1/2
 		call convert				;Call covert to print out / /O/X/
-		mov EDX, OFFSET horizontal	;Make EDX = '|'
+		mov EDX, OFFSET vertical	;Make EDX = '|'
 		call WriteString			;Print horizontal bar of the tictactoe board
 
 		add ESI, 4					;Make ESI increase to the next index of the array
 		mov EAX, board[ESI]			;Make EAX = board[ESI] = 0/1/2
 		call convert				;Call covert to print out / /O/X/
-		mov EDX, OFFSET horizontal  ;Make EDX = '|'
+		mov EDX, OFFSET vertical    ;Make EDX = '|'
 		call WriteString			;Print horizontal bar of the tictactoe board
 
 		add ESI, 4					;Make ESI increase to the next index of the array
@@ -81,7 +83,7 @@ displayBoard PROC					;This procedure will display the current values on the tic
 		call convert				;Call covert to print out / /O/X/
 
 		call crlf					;Start on the next command line		
-		mov EDX, OFFSET vertical	;Make EDX = '-----'
+		mov EDX, OFFSET horizontal	;Make EDX = '-----'
 		call WriteString			;Print vertical bar of the tictactoe board
 		call crlf					;Start on the next command line
 
