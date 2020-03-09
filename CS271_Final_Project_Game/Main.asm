@@ -5,13 +5,14 @@ TITLE Tic Tac Toe
 
 
 ; Registers used in the program: 	
-	;1)	eax, esi, edx, ecx, 
+	;1)	eax, esi, edx, ecx, ebx
 	
 ; Classification of registers:
 	;1) EDX: Used to display text instructions
 	;2) EAX: Used grab data from board[ESI]
 	;3) ESI: Used for the index value of board[ESI]
 	;4) ECX: Used for loops
+	;5) EBX: Used as flag to indicate if user input is valid in main
 
 ; Procedures:
 	;1)	Main Procedure
@@ -28,7 +29,8 @@ INCLUDE Irvine32.inc
 	empty		BYTE        " ",0	;Represents an empty spot on the board
 	letterO     BYTE        "O",0	;Represents a "O" spot on the board
 	letterX     BYTE        "X",0	;Represents a "X" spot on the board
-	indexSize   DWORD        4      ;Usedt to represent 4 bytes/1 index.
+	indexSize   DWORD       4       ;Used to represent 4 bytes/1 index.
+	valueZero   DWORD       0		;Used in checkBoard loop to see if board[] has any empty spaces
 MAX_SIZE = 9	;Size of array that keeps track of the O/X/Empty spaces on the board
 
 .data
@@ -65,15 +67,20 @@ main PROC
 		call WriteString
 		call crlf
 		call displayBoard
+
+	checkBoard:
+		call fullBoard
 	
 	userInteraction:
 		call ReadInt
 		call checkInteger
-		cmp EBX, 1
-		je userInteraction
+
+		cmp EBX, 1					;Comparison EBX == 1. This comparison indicates if the user's input is valid. If EBX = 1, then input is not valid 
+		je userInteraction			;Jump back to begining of userInteraction to ask for a new input from user
+
 		call addToBoard
 		call displayBoard
-		jmp userInteraction
+		jmp checkBoard
 
 
 		exit
@@ -117,7 +124,6 @@ displayBoard PROC					;This procedure will display the current values on the tic
 
 		loop display				;End of loop
 	ret								;Return to main
-
 displayBoard ENDP
 
 convert PROC						;This procedure will use compare statements to decide what needs printed on the board. If EAX = 0, then ' ' . If EAX = 1, then 'O'. If EAX = 2, then 'X'  
@@ -143,43 +149,61 @@ convert PROC						;This procedure will use compare statements to decide what nee
 		mov EDX, OFFSET letterX		;Make EDX = 'X'
 		call WriteString			;Print EDX
 		ret							;Return to displayBoard
-
 convert ENDP						;End of covert procedure
 
-checkInteger PROC					;This procedure will determine if the player's spot choice is valid to mark. It will look at board[ESI] at the index of playerChoice to determine if it is valid
+checkInteger PROC					;This procedure will determine if the player's input is valid to mark. It will look at board[ESI] at the index of EAX to determine if it is valid
 	outOfBounds:                    ;Will check if playerChoice is between [0-8]
-		cmp EAX, 0
-		jl notValid
-		cmp EAX, 8
-		jg notValid	
+		cmp EAX, 0					;Compare EAX < 0
+		jl notValid					;If EAX < 0, then jump to notValid
+		cmp EAX, 8					;Compare EAX > 8
+		jg notValid					;If EAX > 8, then jump to notValid
 
-	moveIndex:
-		mul indexSize
+	moveIndex:						;Will convert input from user to the proper index for board[].(If user input was 2, then will change it to 8 grab from Board[8] also known as index 2)
+		mul indexSize				;Make EAX * 400
 
-	checkBoard:
-		cmp board[EAX], 1
-		je notValid
-		cmp board[EAX], 2
-		je notValid
-		jmp isValid
+	checkBoard:						;Will check if board[EAX] has data. If board[EAX] = 1 or 2 (O or X), then jump to notValid
+		cmp board[EAX], 1			;Compare board[EAX] == 1
+		je notValid					;If board[EAX] = 1, then jump to notValid
+		cmp board[EAX], 2			;Compare board[EAX] == 2
+		je notValid					;If board[EAX] = 2, then jump to notValid
+		jmp isValid					;The input from user is valid, jump to isValid
 
 		
-	notValid:
-		mov EBX, 1                  ;
-		mov EDX, OFFSET promptInvalid
-		call WriteString
-		call crlf
-		ret        ;Will jump to userInteraction in main to ask the user for a new input
+	notValid:						;Will tell user that their input is not vaild and will make EBX = 1 to indicate it is not valid in main
+		mov EBX, 1                  ;Make EBX = 1
+		mov EDX, OFFSET promptInvalid	;Make EDX = 'The number you entered is not a valid input. Enter a new number'
+		call WriteString				;Print promptInvalid
+		call crlf						;Start on the next command line
+		ret								;Will jump to userInteraction in main 
 
-	isValid:
+	isValid:						;Will make EBX = 0 to indicate that the user's input is valid in main
+		mov EBX, 0					;Make EBX = 0
+		ret							;Will jump to userInteraction in main 
+checkInteger ENDP					;End of check Integer procedure
+
+addToBoard PROC						;This procedure will add 1 (also known as O) to board[EAX]. Make sure EAX is the index value and not a spot value (Ex. If user want to input TOP-RIGHT:3, then EAX needs to be 12)
+	mov board[EAX], 1				;Makes board[EAX] = 1 (also know as O)
+	ret								;return to main
+addToBoard ENDP						;End of addToBoardProcedure
+
+fullBoard PROC
+	mov EBX, 0
+	mov ESI, 0
+	mov ECX, max
+	
+	checkBoard:
+		cmp board[ESI], EBX			;Since 0 represents an empty spot on the board
+		loop checkBoard
+
+
+	boardIsFull:
+		mov EBX, 1
+		ret
+	
+	boardNotFull:
 		mov EBX, 0
 		ret
 
-checkInteger ENDP
-
-addToBoard PROC
-	mov board[EAX], 1
-	ret
-addToBoard ENDP
+fullBoard ENDP
 
 END main
