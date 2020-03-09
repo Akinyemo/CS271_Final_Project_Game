@@ -28,15 +28,20 @@ INCLUDE Irvine32.inc
 	empty		BYTE        " ",0	;Represents an empty spot on the board
 	letterO     BYTE        "O",0	;Represents a "O" spot on the board
 	letterX     BYTE        "X",0	;Represents a "X" spot on the board
-
+	indexSize   DWORD        4      ;Usedt to represent 4 bytes/1 index.
 MAX_SIZE = 9	;Size of array that keeps track of the O/X/Empty spaces on the board
 
 .data
 	intro		BYTE		"WELCOME TO TIC TAC TOE",0		;Intro text for the game
+	prompt1		BYTE        "Enter a number to choose where you want to mark on the board",0
+	prompt2	    BYTE        "TOP-LEFT:0 TOP-MID:1 TOP-RIGHT:2",0
+	prompt3	    BYTE        "MID-LEFT:3 MID-MID:4 MID-RIGHT:5",0
+	prompt4     BYTE        "BOT-LEFT:6 BOT-MID:7 BOT-RIGHT:8",0
+	promptInvalid BYTE      "The number you entered is not a valid input. Enter a new number",0
 	board       DWORD       MAX_SIZE	DUP(?)				;This will be the array that will keep track of which spots have O/X/Empty || Empty = 0 || O = 1 || X = 2
 	vertical    BYTE        "|",0							;Vertical bar that is part of the board
 	horizontal  BYTE        "-----"							;Horizontal bar that is part of the board
-
+	playerChoice DWORD      ?       
 
 .code
 main PROC
@@ -45,9 +50,30 @@ main PROC
 		call WriteString
 		call crlf
 		call resetBoard
+
+	prompt:
+		mov EDX, OFFSET prompt1
+		call WriteString
+		call crlf
+		mov EDX, OFFSET prompt2
+		call WriteString
+		call crlf
+		mov EDX, OFFSET prompt3
+		call WriteString
+		call crlf
+		mov EDX, OFFSET prompt4
+		call WriteString
+		call crlf
 		call displayBoard
-
-
+	
+	userInteraction:
+		call ReadInt
+		call checkInteger
+		cmp EBX, 1
+		je userInteraction
+		call addToBoard
+		call displayBoard
+		jmp userInteraction
 
 
 		exit
@@ -120,5 +146,40 @@ convert PROC						;This procedure will use compare statements to decide what nee
 
 convert ENDP						;End of covert procedure
 
+checkInteger PROC					;This procedure will determine if the player's spot choice is valid to mark. It will look at board[ESI] at the index of playerChoice to determine if it is valid
+	outOfBounds:                    ;Will check if playerChoice is between [0-8]
+		cmp EAX, 0
+		jl notValid
+		cmp EAX, 8
+		jg notValid	
+
+	moveIndex:
+		mul indexSize
+
+	checkBoard:
+		cmp board[EAX], 1
+		je notValid
+		cmp board[EAX], 2
+		je notValid
+		jmp isValid
+
+		
+	notValid:
+		mov EBX, 1                  ;
+		mov EDX, OFFSET promptInvalid
+		call WriteString
+		call crlf
+		ret        ;Will jump to userInteraction in main to ask the user for a new input
+
+	isValid:
+		mov EBX, 0
+		ret
+
+checkInteger ENDP
+
+addToBoard PROC
+	mov board[EAX], 1
+	ret
+addToBoard ENDP
 
 END main
