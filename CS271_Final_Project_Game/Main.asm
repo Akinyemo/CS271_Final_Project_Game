@@ -9,7 +9,10 @@ TITLE Tic Tac Toe
 	
 ; Classification of registers:
 	;1) EDX: Used to display text instructions
-	
+	;2) EAX: Used grab data from board[ESI]
+	;3) ESI: Used for the index value of board[ESI]
+	;4) ECX: Used for loops
+
 ; Procedures:
 	;1)	Main Procedure
 
